@@ -1,26 +1,215 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ──────────────────────────────────────────────
+   DESIGN TOKENS
+   ────────────────────────────────────────────── */
+@theme {
+  /* Colour */
+  --color-obsidian: #080808;
+  --color-obsidian-surface: #121212;
+  --color-obsidian-card: #181818;
+  --color-obsidian-border: #262626;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-champagne: #d4af37;
+  --color-champagne-light: #ead68a;
+  --color-champagne-muted: #9e822a;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-parchment: #f5f5f0;
+  --color-anamorphic: #4e878c;
+  --color-filmRed: #e63946;
+
+  /* Type (variables come from next/font, with solid fallbacks) */
+  --font-display: var(--font-editorial), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-primary), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-technical), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Motion: shared easing so every animation feels like the same hand */
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-silk: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Marquee utility: generates `animate-marquee` */
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-marquee-reverse: marquee-reverse 40s linear infinite;
+  --animate-fade-up: fade-up 1s var(--ease-cinematic) both;
+
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+  @keyframes marquee-reverse {
+    from { transform: translate3d(-50%, 0, 0); }
+    to   { transform: translate3d(0, 0, 0); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translate3d(0, 24px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ──────────────────────────────────────────────
+   BASE
+   ────────────────────────────────────────────── */
+@layer base {
+  html {
+    background-color: #080808;
+    color-scheme: dark;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a2a #080808;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: #080808;
+    color: #f5f5f0;
+    overflow-x: hidden;
+    min-height: 100svh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Protects imagery from casual selection/drag-saving */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Forms and anything explicitly opted in stay selectable */
+  input,
+  textarea,
+  select,
+  [contenteditable],
+  .selectable {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  img,
+  video {
+    -webkit-user-drag: none;
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: #d4af37;
+    color: #080808;
+  }
+
+  /* Keyboard focus that matches the brand */
+  :focus-visible {
+    outline: 1px solid #d4af37;
+    outline-offset: 4px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   LENIS SMOOTH SCROLL (safe to keep even before installing Lenis)
+   ────────────────────────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ──────────────────────────────────────────────
+   ATMOSPHERE
+   ────────────────────────────────────────────── */
+.hud-grid {
+  background-size: 60px 60px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+}
+
+/* Static film grain: one tiny SVG, no JS, no animation, so it costs almost nothing */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
+
+/* Gold gradient text for headline accents */
+.text-gold-gradient {
+  background: linear-gradient(110deg, #9e822a 0%, #ead68a 45%, #d4af37 70%, #9e822a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hairline divider that fades at both ends */
+.hairline {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.45), transparent);
+}
+
+/* ──────────────────────────────────────────────
+   SCROLLBAR
+   ────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}
+
+/* ──────────────────────────────────────────────
+   MARQUEE (kept for backwards compatibility)
+   Content must be duplicated once inside the track so -50% loops seamlessly.
+   ────────────────────────────────────────────── */
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.marquee-pause:hover .animate-marquee,
+.marquee-pause:hover .animate-marquee-reverse {
+  animation-play-state: paused;
+}
+
+/* ──────────────────────────────────────────────
+   PERFORMANCE HELPERS
+   ────────────────────────────────────────────── */
+/* Skips rendering of off-screen sections until needed */
+.defer-render {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+
+/* ──────────────────────────────────────────────
+   REDUCED MOTION
+   ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee {
+    animation: none !important;
+  }
 }
